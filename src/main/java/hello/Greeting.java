@@ -2,8 +2,6 @@ package hello;
 
 /**
  * Greeting class
- * 
- * @author Dev
  *
  */
 public class Greeting {

@@ -8,7 +8,6 @@ import java.net.URL;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
@@ -20,18 +19,17 @@ import org.springframework.web.client.RestTemplate;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0" })
-public class HelloControllerIT {
+@IntegrationTest()
+public class HelloControllerIntegrationTest {
 
-	@Value("${local.server.port}")
-	private int port;
+	private static final int PORT = 8888;
 
 	private URL base;
 	private RestTemplate template;
 
 	@Before
 	public void setUp() throws Exception {
-		this.base = new URL("http://localhost:" + port + "/greeting");
+		this.base = new URL("http://localhost:" + PORT + "/greeting");
 		template = new TestRestTemplate();
 	}
 

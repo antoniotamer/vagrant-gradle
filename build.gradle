@@ -29,7 +29,7 @@ jar {
     }
 }
 ext {
-	vagrant = 'src/integTest/resources/vagrant'
+	vagrant = 'vagrant'
 }
 
 repositories {
@@ -48,6 +48,7 @@ dependencies {
     // end::actuator[]
     // tag::tests[]
     testCompile 'org.springframework.boot:spring-boot-starter-test:1.2.2.RELEASE'
+    
 
     // end::tests[]
 }
@@ -56,21 +57,6 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.1'
 }
 
-
-//integration tests
-sourceSets {
-    integTest {
-        java.srcDir file('src/integTest/java')
-        resources.srcDir file('src/integTest/resources')
-    }
-}
-
-task integTest(type: Test) {
-    testClassesDir = sourceSets.integTest.output.classesDir
-    classpath = sourceSets.integTest.runtimeClasspath
-}
-
-check.dependsOn integTest
 
 vagrant {
     boxDir = file(vagrant)
@@ -96,9 +82,12 @@ task vagrantListsBoxes(type: Vagrant) {
 
 task vagrantEcho(type: VagrantSsh) {
     description = 'Runs remote SSH command in Vagrant box.'
-    sshCommand = "echo 'hello'"
+    sshCommand = "java -jar /vagrant_data/vagrant-poc-0.1.0.jar"
+    
 
     dependsOn vagrantUp
     finalizedBy vagrantDestroy
     
 }
+
+test.dependsOn(vagrantEcho)
