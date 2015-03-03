@@ -1,0 +1,104 @@
+buildscript {
+    repositories {
+		mavenCentral()
+    	maven {
+			url 'http://repo.spring.io/libs-release'
+    	}
+    }
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.2.2.RELEASE'
+		classpath 'com.bmuschko:gradle-vagrant-plugin:2.0'
+    }
+}
+plugins {
+	id "java"
+	id "eclipse"
+	id "com.bmuschko.vagrant" version "2.0"
+}
+
+apply plugin: 'spring-boot'
+
+jar {
+    baseName = 'vagrant-poc'
+    version =  '0.1.0'
+    manifest {
+        attributes 'Implementation-Title': 'Entire application lifecycle with Vagrant proof of concept', 
+		'Implementation-Version': version,
+		'Main-Class': 'hello.Application'
+		
+    }
+}
+ext {
+	vagrant = 'src/integTest/resources/vagrant'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+		url 'http://repo.spring.io/libs-release'
+	}
+}
+
+dependencies {
+    compile 'org.springframework.boot:spring-boot-starter-web:1.2.2.RELEASE'
+
+    // tag::actuator[]
+    compile 'org.springframework.boot:spring-boot-starter-actuator:1.2.2.RELEASE'
+
+    // end::actuator[]
+    // tag::tests[]
+    testCompile 'org.springframework.boot:spring-boot-starter-test:1.2.2.RELEASE'
+
+    // end::tests[]
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.1'
+}
+
+
+//integration tests
+sourceSets {
+    integTest {
+        java.srcDir file('src/integTest/java')
+        resources.srcDir file('src/integTest/resources')
+    }
+}
+
+task integTest(type: Test) {
+    testClassesDir = sourceSets.integTest.output.classesDir
+    classpath = sourceSets.integTest.runtimeClasspath
+}
+
+check.dependsOn integTest
+
+vagrant {
+    boxDir = file(vagrant)
+
+    environmentVariables {
+        variable 'IP', '127.0.0.1'
+        variable 'OPERATINGSYSTEM', 'redhat'
+    }
+
+    installation {
+        validate = false
+    }
+}
+
+import com.bmuschko.gradle.vagrant.tasks.Vagrant
+import com.bmuschko.gradle.vagrant.tasks.VagrantSsh
+
+task vagrantListsBoxes(type: Vagrant) {
+    description = 'Outputs a list of available Vagrant boxes.'
+    commands = ['box', 'list']
+}
+
+
+task vagrantEcho(type: VagrantSsh) {
+    description = 'Runs remote SSH command in Vagrant box.'
+    sshCommand = "echo 'hello'"
+
+    dependsOn vagrantUp
+    finalizedBy vagrantDestroy
+    
+}
