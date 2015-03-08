@@ -20,9 +20,9 @@ import org.springframework.web.client.RestTemplate;
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
 @IntegrationTest()
-public class HelloControllerIntegrationTest {
+public class HelloControllerSpringBootTest {
 
-	private static final int PORT = 8888;
+	private static final int PORT = 8080;
 
 	private URL base;
 	private RestTemplate template;
